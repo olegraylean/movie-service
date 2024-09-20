@@ -1,6 +1,7 @@
 package com.rayn_microservices.movie_service.model;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,10 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//@Entity
-//@Table
 public class Movie {
-  private BigDecimal id;
+  private long id;
   private String title;
   private String genres;
   private String cast;
