@@ -1,0 +1,105 @@
+version: '3.3'
+services:
+  database-movie:
+    image: postgres:16-alpine
+    ports:
+      - "5438:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "movie" #database name
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
+      - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
+      - /D/PostgreSQL/16/movie/data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      backend:
+        aliases:
+          - "database-movie" #ip address in docker
+
+#  database-master2:
+#    image: postgres:16.4-bookworm-pglogical
+#    ports:
+#      - "5439:5432"
+#    environment:
+#      POSTGRES_USER: "postgres"
+#      POSTGRES_PASSWORD: "postgres"
+#      POSTGRES_DB: "currency-exchange"
+#      PGDATA: /var/lib/postgresql/data
+#    volumes:
+##      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
+##      - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
+#      - /D/PostgreSQL/16/master2/data:/var/lib/postgresql/data
+#    healthcheck:
+#      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
+#    networks:
+#      backend:
+#        aliases:
+#          - "database-master2"
+#
+#  config-server:
+#    image: maks231docker/tm14-spring-cloud-config-server:0.0.1-SNAPSHOT
+#    ports:
+#      - "8888:8888"
+#    networks:
+#      backend:
+#        aliases:
+#          - "config-server"
+#  naming-server:
+#    image: maks231docker/tm14-spring-cloud-naming-server:0.0.1-SNAPSHOT
+#    environment:
+#      - "SPRING_PROFILES_ACTIVE=dev"
+#    ports:
+#      - "8761:8761"
+#    depends_on:
+#      config-server:
+#        condition: service_started
+#    networks:
+#      backend:
+#        aliases:
+#          - "naming-serve"
+#  gateway-server:
+#    image: maks231docker/tm14-spring-cloud-gateway-server:0.0.1-SNAPSHOT
+#    ports:
+#      - "8765:8765"
+#    depends_on:
+#      config-server:
+#        condition: service_started
+#      naming-server:
+#        condition: service_started
+#    networks:
+#      backend:
+#        aliases:
+#          - "gateway-server"
+#  bookstoreservice:
+#    image: book-store:alpine
+#    environment:
+#      CONFIGSERVER_URI: "http://config-server:8888"
+#      CONFIGSERVER_PORT: "8888"
+#    depends_on:
+#      configserver:
+#        condition: service_started
+#      eurekaserver:
+#        condition: service_started
+#    #        gatewayserver:
+#    #          condition: service_started
+#    ports:
+#      - "8080:8080"
+#    links:
+#      - eurekaserver
+#      - configserver
+#    networks:
+#      - backend
+networks:
+  backend:
+#    external: true
+    driver: bridge

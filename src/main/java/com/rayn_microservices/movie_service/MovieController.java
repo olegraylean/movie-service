@@ -2,6 +2,7 @@ package com.rayn_microservices.movie_service;
 
 import com.rayn_microservices.movie_service.model.Director;
 import com.rayn_microservices.movie_service.model.Movie;
+import com.rayn_microservices.movie_service.repository.MovieRepository;
 import com.rayn_microservices.movie_service.service.PersonProxy;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,14 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 public class MovieController {
 
   private final PersonProxy personProxy;
+  private final MovieRepository movieRepository;
 
-  public MovieController(PersonProxy personProxy) {
+  public MovieController(PersonProxy personProxy, MovieRepository movieRepository) {
     this.personProxy = personProxy;
+    this.movieRepository = movieRepository;
   }
 
   //  @GetMapping("movie/genre/{genre}/year/{year}")
@@ -38,5 +42,13 @@ public class MovieController {
 //  GET /movies?genre={genre}&year={year}
 //  GET /movies/actor/{id}
 //  GET /movies/director/{id}
+
+  public Movie saveUser(Movie movie) {
+    return movieRepository.save(movie);
+  }
+
+  public List<Movie> getAllUsers() {
+    return movieRepository.findAll();
+  }
 
 }

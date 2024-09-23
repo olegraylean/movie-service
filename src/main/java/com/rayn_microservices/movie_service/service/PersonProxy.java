@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name="person-service", url="localhost:8000")
 public interface PersonProxy {
+
   @GetMapping("persons/director/movie/{movie}")
   public Director getDirector(@PathVariable String movie);
 }
