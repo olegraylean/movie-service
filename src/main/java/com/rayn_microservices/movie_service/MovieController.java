@@ -3,12 +3,16 @@ package com.rayn_microservices.movie_service;
 import com.rayn_microservices.movie_service.model.Director;
 import com.rayn_microservices.movie_service.model.Movie;
 import com.rayn_microservices.movie_service.repository.MovieRepository;
+import com.rayn_microservices.movie_service.service.MovieService;
 import com.rayn_microservices.movie_service.service.PersonProxy;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,10 +24,12 @@ public class MovieController {
 
   private final PersonProxy personProxy;
   private final MovieRepository movieRepository;
+  private final MovieService movieService;
 
-  public MovieController(PersonProxy personProxy, MovieRepository movieRepository) {
+  public MovieController(PersonProxy personProxy, MovieRepository movieRepository, MovieService movieService) {
     this.personProxy = personProxy;
     this.movieRepository = movieRepository;
+    this.movieService = movieService;
   }
 
   //  @GetMapping("movie/genre/{genre}/year/{year}")
@@ -36,7 +42,8 @@ public class MovieController {
 //    String director = responseEntity.getBody() != null ? responseEntity.getBody().getFullName() : null;
     String director = personProxy.getDirector("Fear").getFullName();
 
-    return Movie.builder().id(1l).genres(genre).directors(director).title("Fear").releaseDate(year).build();
+//    return Movie.builder().id(1l).genres(genre).directors(director).title("Fear").releaseDate(year).build();
+    return Movie.builder().title("Fear").build();
   }
 
 //  GET /movies?genre={genre}&year={year}
@@ -47,8 +54,16 @@ public class MovieController {
     return movieRepository.save(movie);
   }
 
-  public List<Movie> getAllUsers() {
-    return movieRepository.findAll();
+  @GetMapping("/movie")
+  public ResponseEntity<List<Movie>> getAllMovies() {
+    List<Movie> movies = movieRepository.findAll();
+    return ResponseEntity.ok(movies);
   }
 
+
+  @PostMapping("/movie")
+  public ResponseEntity<Movie> addMovie(@RequestBody Movie movie) {
+    Movie newMovie = movieService.saveMovie(movie);
+    return new ResponseEntity<>(newMovie, HttpStatus.CREATED);
+  }
 }
