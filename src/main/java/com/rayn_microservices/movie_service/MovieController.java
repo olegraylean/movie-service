@@ -1,13 +1,12 @@
 package com.rayn_microservices.movie_service;
 
 import com.rayn_microservices.movie_service.model.Movie;
-import com.rayn_microservices.movie_service.model.dto.ActorDto;
+import com.rayn_microservices.movie_service.model.dto.PersonDto;
 import com.rayn_microservices.movie_service.model.dto.MovieDto;
 import com.rayn_microservices.movie_service.repository.MovieRepository;
 import com.rayn_microservices.movie_service.service.MovieService;
 import com.rayn_microservices.movie_service.service.PersonProxy;
 
-import org.springframework.core.env.Environment;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,9 +111,12 @@ public class MovieController {
     return ResponseEntity.ok(movieService.getMoviesByProductionCompany(companyId));
   }
 
-  @GetMapping("movie/search/actor/name/{name}/id/{id}")
-  public ResponseEntity<List<MovieDto>> getMovieByActorNameAndId(@PathVariable("name") String name, @PathVariable("id") UUID id) {
-    ActorDto actorDto = personProxy.getActorsByNameAndId(name, id);
+  @GetMapping("movie/search/person/{type}/name/{name}/id/{id}")
+  public ResponseEntity<List<MovieDto>> getMovieByActorNameAndId(@PathVariable("type") String type,
+                                                                 @PathVariable("name") String name,
+                                                                 @PathVariable("id") UUID id) {
+//    ActorDto actorDto = personProxy.getActorsByNameAndId(name, id);
+    PersonDto actorDto = personProxy.getPersonByTypeAndNameAndId(type, name, id);
     List<Movie> movies = movieService.getMoviesByActor(id);
     List<MovieDto> movieDto =
         movies.stream().map(movie -> new MovieDto(movie, actorDto.getFirstName(), actorDto.getLastName(), actorDto.getEnvironment())).toList();

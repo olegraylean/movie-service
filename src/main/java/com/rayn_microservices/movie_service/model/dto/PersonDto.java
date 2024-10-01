@@ -5,8 +5,9 @@ import java.util.UUID;
 import lombok.Getter;
 
 @Getter
-public class ActorDto {
+public class PersonDto {
   private UUID id;
+  private String type;
   private String firstName;
   private String lastName;
   private String environment;
