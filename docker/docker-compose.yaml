@@ -1,3 +1,5 @@
+#version: '3.3'
+#docker network create -d bridge backend
 services:
   database-movie:
     image: postgres:16-alpine
@@ -45,60 +47,95 @@ services:
         aliases:
           - "database-person"
 #
+#docker network create -d bridge backend
+#services:
 #  config-server:
-#    image: maks231docker/tm14-spring-cloud-config-server:0.0.1-SNAPSHOT
+#    image: localhost:5000/spring-cloud-config-server:1.0-SNAPSHOT
+#    container_name: config-server
 #    ports:
 #      - "8888:8888"
 #    networks:
 #      backend:
 #        aliases:
 #          - "config-server"
-#  naming-server:
-#    image: maks231docker/tm14-spring-cloud-naming-server:0.0.1-SNAPSHOT
-#    environment:
-#      - "SPRING_PROFILES_ACTIVE=dev"
-#    ports:
-#      - "8761:8761"
-#    depends_on:
-#      config-server:
-#        condition: service_started
-#    networks:
-#      backend:
-#        aliases:
-#          - "naming-serve"
-#  gateway-server:
-#    image: maks231docker/tm14-spring-cloud-gateway-server:0.0.1-SNAPSHOT
-#    ports:
-#      - "8765:8765"
-#    depends_on:
-#      config-server:
-#        condition: service_started
-#      naming-server:
-#        condition: service_started
-#    networks:
-#      backend:
-#        aliases:
-#          - "gateway-server"
-#  bookstoreservice:
-#    image: book-store:alpine
-#    environment:
-#      CONFIGSERVER_URI: "http://config-server:8888"
-#      CONFIGSERVER_PORT: "8888"
-#    depends_on:
-#      configserver:
-#        condition: service_started
-#      eurekaserver:
-#        condition: service_started
-#    #        gatewayserver:
-#    #          condition: service_started
-#    ports:
-#      - "8080:8080"
-#    links:
-#      - eurekaserver
-#      - configserver
-#    networks:
-#      - backend
+
+  naming-server:
+    image: oraylean/naming-server:latest
+    container_name: naming-server
+    environment:
+      - "SPRING_PROFILES_ACTIVE=cloud"
+    ports:
+      - "8761:8761"
+    depends_on:
+      config-server:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - "naming-serve"
+
+  gateway-server:
+    image: oraylean/api-gateway:latest
+    container_name: api-gateway-server
+    environment:
+      - "SPRING_PROFILES_ACTIVE=cloud"
+    ports:
+      - "8765:8765"
+    depends_on:
+      config-server:
+        condition: service_started
+      naming-server:
+        condition: service_started
+    networks:
+      backend:
+        aliases:
+          - "api-gateway-server"
+
+
+  movie-service-1:
+    image: oraylean/movie-service:latest
+    container_name: movie-service-1
+    environment:
+      SERVER_PORT: 8100
+      SPRING_PROFILES_ACTIVE: "cloud"
+    ports:
+      - "8100:8100"
+    networks:
+      - backend
+
+  movie-service-2:
+    image: oraylean/movie-service:latest
+    container_name: movie-service-2
+    environment:
+      SERVER_PORT: 8101
+      SPRING_PROFILES_ACTIVE: "cloud"
+    ports:
+      - "8101:8101"
+    networks:
+      - backend
+
+  person-service-1:
+    image: oraylean/person-service:latest
+    container_name: person-service-1
+    environment:
+      SERVER_PORT: 8000
+      SPRING_PROFILES_ACTIVE: "cloud"
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+
+  person-service-2:
+    image: oraylean/person-service:latest
+    container_name: person-service-2
+    environment:
+      SERVER_PORT: 8001
+      SPRING_PROFILES_ACTIVE: "cloud"
+    ports:
+      - "8001:8001"
+    networks:
+      - backend
+
 networks:
   backend:
-#    external: true
     driver: bridge

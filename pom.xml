@@ -108,11 +108,16 @@
         <configuration>
           <image>
             <name>oraylean/${project.artifactId}:latest</name>
-<!--            <publish>true</publish>-->
+            <publish>true</publish>
           </image>
           <pullPolicy>IF_NOT_PRESENT</pullPolicy>
           <docker>
             <host>//./pipe/dockerDesktopLinuxEngine</host>
+            <publishRegistry>
+              <username>oraylean</username>
+              <password>104856doc</password>
+               <url>https://docker.io</url>
+            </publishRegistry>
           </docker>
         </configuration>
       </plugin>
